@@ -1,12 +1,8 @@
-module calculadora(S,A,B,op,clk,rst,HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, HEX6, HEX7);
-  input [7:0]A,B;
+module calculadora(S,A,B,op,clk,rst);
+  input [17:0]A,B;
   input	[1:0]op;
   input clk,rst;
   output reg [26:0]S;
-  
-  //Para instanciação:
-  wire [3:0] num0, num1, num2, num3, num4, num5, num6, num7;
-  output wire [6:0]HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, HEX6, HEX7;
   
   //Estados:
   reg [2:0]State;
@@ -18,9 +14,6 @@ module calculadora(S,A,B,op,clk,rst,HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, HEX6, HE
   divisao = 3'b011,
   zerado = 3'b100;
 
-  
-  
-  
   //Always para definir os estados:
   always@(A,B,op,State)
     begin
@@ -30,7 +23,8 @@ module calculadora(S,A,B,op,clk,rst,HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, HEX6, HE
           if (S > 99999999) //Tratando numero maximo do display
             S = 0;
         end
-        subtracao:begin
+        
+		  subtracao:begin
           if(A < B & S < 99999999)
             S = (B - A);
           else if(A < B & S > 99999999)
@@ -42,21 +36,26 @@ module calculadora(S,A,B,op,clk,rst,HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, HEX6, HE
             S = 0;
           end
         end
-        multiplicacao:begin
+        
+		  multiplicacao:begin
           S = A*B;
           if (S > 99999999)
             S = 0;
         end
-        divisao:begin
+        
+		  divisao:begin
           S = A/B;
           if (S > 99999999)
             S = 0;
         end
+		  
 		  zerado: begin
-				S = 0;
+				S = 0;  //Zeramos o valor de 0 ao resetar (mesmo reset do modulo principal)
 		  end
+		
 		default: S = 0;
-      endcase
+      
+		endcase
     end
 
 	 //Always para atualizar clock e reset:
@@ -68,7 +67,6 @@ module calculadora(S,A,B,op,clk,rst,HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, HEX6, HE
 			State <= zerado;
 			end
 			
-		
       else  case(op)
           soma: State <= soma;
           subtracao: State <= subtracao;
@@ -77,9 +75,7 @@ module calculadora(S,A,B,op,clk,rst,HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, HEX6, HE
           default: State <= soma;
         endcase 
     end 
-	 
-	 // Instancias:
-  bin2bcd bcd(.numero(S),.num0(num0) , .num1(num1), .num2(num2), .num3(num3), .num4(num4), .num5(num5), .num6(num6), .num7(num7));
   
-  C7SEG seg7(.num0(num0) , .num1(num1), .num2(num2), .num3(num3), .num4(num4), .num5(num5), .num6(num6), .num7(num7), .HEX0(HEX0), .HEX1(HEX1), .HEX2(HEX2), .HEX3(HEX3), .HEX4(HEX4),.HEX5(HEX5),.HEX6(HEX6), .HEX7(HEX7));
 endmodule
+	 
+	
